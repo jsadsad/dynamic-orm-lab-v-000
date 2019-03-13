@@ -25,12 +25,12 @@ class InteractiveRecord
   
   def table_name_for_insert
     self.class.table_name
-  end #table_name_for_insert
+  end
   
   
   def col_names_for_insert
     self.class.column_names.delete_if {|col| col == "id"}.join(", ")
-  end #col_names_for_insert
+  end
     
     
   def values_for_insert
@@ -61,6 +61,4 @@ class InteractiveRecord
     sql = "SELECT * FROM #{self.table_name} WHERE #{attributes.keys.first} = #{alt_value}"
     DB[:conn].execute(sql)
   end
-  
-  
 end
