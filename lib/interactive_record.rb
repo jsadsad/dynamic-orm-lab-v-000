@@ -1,14 +1,16 @@
- require_relative "../config/environment.rb"
+require_relative "../config/environment.rb"
 require 'active_support/inflector'
 require 'pry'
 
 class InteractiveRecord
   
+  def initialize(attributes={})
+    attributes.each {|property, value| self.send("#{property}=", value)}
+  end
   
   def self.table_name
     self.to_s.downcase.pluralize
-  end #.table_name
-  
+  end
   
   def self.column_names
     DB[:conn].results_as_hash = true
@@ -19,13 +21,7 @@ class InteractiveRecord
     
     table_info.each {|row| column_names << row['name']}
     column_names.compact
-  end #.column_names
-  
-  
-  def initialize(attributes={})
-    attributes.each {|property, value| self.send("#{property}=", value)}
-  end #initialize
-  
+  end
   
   def table_name_for_insert
     self.class.table_name
@@ -41,7 +37,7 @@ class InteractiveRecord
     values = []
     self.class.column_names.each {|col_name| values << "'#{send(col_name)}'" unless send(col_name).nil?}
     values.join(", ")
-  end #values_for_insert
+  end
   
   def save
     sql = <<-SQL
@@ -51,12 +47,12 @@ class InteractiveRecord
     
     DB[:conn].execute(sql)
     @id = DB[:conn].execute("SELECT last_insert_rowid() FROM #{table_name_for_insert}")[0][0]
-  end #save
+  end
   
   def self.find_by_name(name)
     sql = "SELECT * FROM #{self.table_name} WHERE name = ? LIMIT 1"
     DB[:conn].execute(sql, name)
-  end #.find_by_name
+  end
   
   def self.find_by(attributes)
     value = attributes.values.first
@@ -64,7 +60,7 @@ class InteractiveRecord
     
     sql = "SELECT * FROM #{self.table_name} WHERE #{attributes.keys.first} = #{alt_value}"
     DB[:conn].execute(sql)
-  end #.find_by(attributes)
+  end
   
   
-end #Class InteractiveRecord
+end
